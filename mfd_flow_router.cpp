@@ -51,7 +51,7 @@ void MFDFlowRouter::run() {
         t--;
         int i, j;
         topo.get_sorted_ij(t, i, j);
-        if ( ( i > 3 ) && ( i < (size_x - 3) ) && ( j > 3 ) && ( j < (size_y - 3) ) ) {  // Do not alter boundary elements
+//        if ( ( i > 3 ) && ( i < (size_x - 3) ) && ( j > 3 ) && ( j < (size_y - 3) ) ) {  // Do not alter boundary elements
             real_type flow1 = 0;
             real_type flow2 = 0;
             real_type flow3 = 0;
@@ -116,6 +116,6 @@ void MFDFlowRouter::run() {
             flow(nebs.iup(i), nebs.jdown(j)) += flow(i, j) * flow6 + fa_bounds(i, j);
             flow(nebs.idown(i), nebs.jup(j)) += flow(i, j) * flow7 + fa_bounds(i, j);
             flow(nebs.idown(i), nebs.jdown(j)) += flow(i, j) * flow8 + fa_bounds(i, j);
-        }
+//        }
     }
 }
