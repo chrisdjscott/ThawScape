@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
 
     // flow routing object
     MFDFlowRouter flow_router(topo, flow, nebs);
-    flow_router.initialise();
+    flow_router.initialise(true);
 
     // save initial flow
     flow.save("flow000.asc");
@@ -65,13 +65,13 @@ int main(int argc, char** argv) {
     topo.sort_data();
 
     // main loop
-    int step = 0;
-    while (step < num_steps) {
+    for (int step = 1; step <= num_steps; step++) {
+        std::cout << "Step " << step << std::endl;
+
         // do the flow routing (TODO: can it just be run by itself with nothing else?)
         flow_router.run();
 
         // save the flow
-        step++;
         std::ostringstream fname;
         fname << "flow" << std::setfill('0') << std::setw(3) << step << ".asc";
         flow.save(fname.str());

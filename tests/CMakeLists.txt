@@ -10,10 +10,17 @@ catch_discover_tests(ThawScapeTests)
 # standalone apps for testing
 add_executable(run_mfd run_mfd.cpp)
 target_link_libraries(run_mfd ThawScapeLib)
+add_executable(compare2rasters compare2rasters.cpp)
+target_link_libraries(compare2rasters ThawScapeLib)
 
 # copy test input files
 configure_file(ThawScapeTestInit.ini ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
-configure_file(test_raster.asc ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+
+# copy all asc files
+file(GLOB test_data_files ${CMAKE_CURRENT_SOURCE_DIR}/*.asc)
+foreach(data_file ${test_data_files})
+    configure_file(${data_file} ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+endforeach()
 
 # run test of full code running
 add_test(

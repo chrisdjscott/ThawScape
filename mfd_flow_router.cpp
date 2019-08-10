@@ -1,3 +1,4 @@
+#include <iostream>
 #include <cmath>
 #include <vector>
 #include "raster.h"
@@ -5,7 +6,7 @@
 
 
 /// References to the input Rasters and vectors are stored since they are expected to be
-/// managed elsewhere. One must call the inititialse function before running the flow
+/// managed elsewhere. One must call the initialise function before running the flow
 /// routing.
 MFDFlowRouter::MFDFlowRouter(Raster& topo_, Raster& flow_, GridNeighbours& nebs_) :
         topo(topo_), flow(flow_), nebs(nebs_), initialised(false) {
@@ -13,23 +14,27 @@ MFDFlowRouter::MFDFlowRouter(Raster& topo_, Raster& flow_, GridNeighbours& nebs_
     size_y = topo.get_size_y();
 }
 
-void MFDFlowRouter::initialise() {
+void MFDFlowRouter::initialise(const bool no_fa_bounds) {
     size_x = topo.get_size_x();
     size_y = topo.get_size_y();
 
+    std::cout << "no fa_bounds: " << no_fa_bounds << std::endl;
+
     // FA boundary values; zero otherwise
-    fa_bounds = Raster(size_x, size_y, 0.0);
-    #pragma omp parallel for
-	for (int i = 0; i < size_x; i++)
-	{
-        fa_bounds(i, 0) = flow(i, 0);
-        fa_bounds(i, size_y - 1) = flow(i, size_y - 1);
-	}
-    #pragma omp parallel for
-    for (int j = 0; j < size_y; j++)
-    {
-        fa_bounds(0, j) = flow(0, j);
-        fa_bounds(size_x - 1, j) = flow(size_x - 1, j);
+    flow_incoming = Raster(size_x, size_y, 0.0);
+    if (!no_fa_bounds) {
+        #pragma omp parallel for
+        for (int i = 0; i < size_x; i++)
+        {
+            flow_incoming(i, 0) = flow(i, 0);
+            flow_incoming(i, size_y - 1) = flow(i, size_y - 1);
+        }
+        #pragma omp parallel for
+        for (int j = 0; j < size_y; j++)
+        {
+            flow_incoming(0, j) = flow(0, j);
+            flow_incoming(size_x - 1, j) = flow(size_x - 1, j);
+        }
     }
 
     initialised = true;
@@ -44,7 +49,16 @@ void MFDFlowRouter::run() {
         initialise();
     }
 
-    // loop over points starting from highest elevation to lowest
+    // first apply incoming flow?? (TESTING)
+//    #pragma omp parallel for
+//    for (int i = 0; i < size_x; i++) {
+//        for (int j = 0; j < size_y; j++) {
+//            flow(i, j) += flow_incoming(i, j);
+//        }
+//    }
+
+    // loop over points starting from highest elevation to lowest, calculating the flow from that point to its neighbours
+    // note we don't modify the flow at the i,j element that we are processing, only the flow of its lower neighbours gets modified
     int t = size_x * size_y;
     while (t > 0)
     {
@@ -108,14 +122,22 @@ void MFDFlowRouter::run() {
                 flow8 *= reciptot;
             }
 
-            flow(nebs.iup(i), j) += flow(i, j) * flow1 + fa_bounds(i, j);     // final fa_bounds(i, j) applies only to edges; zero otherwise
-            flow(nebs.idown(i), j) += flow(i, j) * flow2 + fa_bounds(i, j);
-            flow(i, nebs.jup(j)) += flow(i, j) * flow3 + fa_bounds(i, j);
-            flow(i, nebs.jdown(j)) += flow(i, j) * flow4 + fa_bounds(i, j);
-            flow(nebs.iup(i), nebs.jup(j)) += flow(i, j) * flow5 + fa_bounds(i, j);
-            flow(nebs.iup(i), nebs.jdown(j)) += flow(i, j) * flow6 + fa_bounds(i, j);
-            flow(nebs.idown(i), nebs.jup(j)) += flow(i, j) * flow7 + fa_bounds(i, j);
-            flow(nebs.idown(i), nebs.jdown(j)) += flow(i, j) * flow8 + fa_bounds(i, j);
+//            flow(nebs.iup(i), j) += flow(i, j) * flow1 + fa_bounds(i, j);     // final fa_bounds(i, j) applies only to edges; zero otherwise
+//            flow(nebs.idown(i), j) += flow(i, j) * flow2 + fa_bounds(i, j);
+//            flow(i, nebs.jup(j)) += flow(i, j) * flow3 + fa_bounds(i, j);
+//            flow(i, nebs.jdown(j)) += flow(i, j) * flow4 + fa_bounds(i, j);
+//            flow(nebs.iup(i), nebs.jup(j)) += flow(i, j) * flow5 + fa_bounds(i, j);
+//            flow(nebs.iup(i), nebs.jdown(j)) += flow(i, j) * flow6 + fa_bounds(i, j);
+//            flow(nebs.idown(i), nebs.jup(j)) += flow(i, j) * flow7 + fa_bounds(i, j);
+//            flow(nebs.idown(i), nebs.jdown(j)) += flow(i, j) * flow8 + fa_bounds(i, j);
+            flow(nebs.iup(i), j) += flow(i, j) * flow1;
+            flow(nebs.idown(i), j) += flow(i, j) * flow2;
+            flow(i, nebs.jup(j)) += flow(i, j) * flow3;
+            flow(i, nebs.jdown(j)) += flow(i, j) * flow4;
+            flow(nebs.iup(i), nebs.jup(j)) += flow(i, j) * flow5;
+            flow(nebs.iup(i), nebs.jdown(j)) += flow(i, j) * flow6;
+            flow(nebs.idown(i), nebs.jup(j)) += flow(i, j) * flow7;
+            flow(nebs.idown(i), nebs.jdown(j)) += flow(i, j) * flow8;
 //        }
     }
 }

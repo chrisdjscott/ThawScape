@@ -14,7 +14,7 @@ class MFDFlowRouter {
         Raster& topo;  ///< Raster of elevations
         Raster& flow;  ///< Flow accumulation Raster
         GridNeighbours& nebs;  ///< Grid neighbour indexing
-        Raster fa_bounds;  ///< Raster for flow coming in at the boundaries
+        Raster flow_incoming;  ///< Raster for flow coming in at the boundaries
         bool initialised;
 
     public:
@@ -25,7 +25,8 @@ class MFDFlowRouter {
         MFDFlowRouter(Raster& topo_, Raster& flow_, GridNeighbours& nebs_);
 
         /// \brief Initialise the MFDFlowRouter object
-        void initialise();
+        /// \param no_incoming_flow If set to true then there will be no incoming flow at the boundaries
+        void initialise(const bool no_incoming_flow = false);
         
         /// \brief Do the flow routing
         void run();
