@@ -18,9 +18,9 @@ import matplotlib.pyplot as plt
 parser = argparse.ArgumentParser(description="Contour plot of a raster")
 parser.add_argument('filename', help="File containing Raster to plot")
 parser.add_argument('-l', '--logscale', action='store_true', help='Plot on logarithmic scale')
-#parser.add_argument('-l', '--logscale', dest='logscale', action='store_true', help='Plot on logarithmic scale')
-parser.add_argument('-s', '--save', dest='save', action='store_true', help="Save the image to file")
-parser.add_argument('-o', '--offline', dest='offline', action='store_true', help="Don't display interactive plot")
+parser.add_argument('-s', '--save', action='store_true', help="Save the image to file")
+parser.add_argument('-o', '--offline', action='store_true', help="Don't display interactive plot")
+parser.add_argument('-n', '--nlevels', type=int, default=None, help="Number of contour lines")
 args = parser.parse_args()
 fn = args.filename
 assert os.path.exists(fn), "File does not exist: {}".format(fn)
@@ -42,9 +42,15 @@ if np.any(data == nodata):
 fig = plt.figure(figsize=(12, 8))
 ax = fig.add_subplot(111)
 if args.logscale:
-    plt.contourf(data, cmap='seismic', locator=matplotlib.ticker.LogLocator())
+    if args.nlevels is not None:
+        plt.contourf(data, args.nlevels, cmap='seismic', locator=matplotlib.ticker.LogLocator())
+    else:
+        plt.contourf(data, cmap='seismic', locator=matplotlib.ticker.LogLocator())
 else:
-    plt.contourf(data, cmap='seismic')
+    if args.nlevels is not None:
+        plt.contourf(data, args.nlevels, cmap='seismic')
+    else:
+        plt.contourf(data, cmap='seismic')
 cbar = plt.colorbar()
 plt.gca().set_aspect('equal', adjustable='box')
 plt.title(fn)
