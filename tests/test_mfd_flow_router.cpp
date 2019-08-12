@@ -6,6 +6,7 @@
 #include "catch2/catch.hpp"
 #include "mfd_flow_router.h"
 #include "raster.h"
+#include "dem.h"
 #include "grid_neighbours.h"
 
 
@@ -24,7 +25,7 @@ TEST_CASE("Flow accumulation simple", "[mfd_flow_router]") {
                     // load topo
                     std::string topo_file = "test_flow_" + name + ".asc";
                     std::cout << "Topo file = " << topo_file << std::endl;
-                    Raster topo(topo_file);
+                    DEM topo(topo_file);
 
                     // initial flow set to 1 everywhere
                     Raster flow;
