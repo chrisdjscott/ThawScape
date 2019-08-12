@@ -17,9 +17,10 @@ import matplotlib.pyplot as plt
 # parse args
 parser = argparse.ArgumentParser(description="Contour plot of a raster")
 parser.add_argument('filename', help="File containing Raster to plot")
-parser.add_argument('-l', dest='logscale', action='store_true', help='Plot on logarithmic scale')
-parser.add_argument('-s', dest='save', action='store_true', help="Save the image to file")
-parser.add_argument('-o', dest='offline', action='store_true', help="Don't display interactive plot")
+parser.add_argument('-l', '--logscale', action='store_true', help='Plot on logarithmic scale')
+#parser.add_argument('-l', '--logscale', dest='logscale', action='store_true', help='Plot on logarithmic scale')
+parser.add_argument('-s', '--save', dest='save', action='store_true', help="Save the image to file")
+parser.add_argument('-o', '--offline', dest='offline', action='store_true', help="Don't display interactive plot")
 args = parser.parse_args()
 fn = args.filename
 assert os.path.exists(fn), "File does not exist: {}".format(fn)

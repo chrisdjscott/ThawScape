@@ -34,10 +34,12 @@ int main(int argc, char** argv) {
     }
 
     // calculate Euclidean distance
+    Raster diffs(raster1.get_size_x(), raster1.get_size_y(), 0);
     real_type sum = 0.0;
     for (int i = 0; i < raster1.get_size_x(); i++) {
         for (int j = 0; j < raster1.get_size_y(); j++) {
             real_type diff = raster1(i, j) - raster2(i, j);
+            diffs(i, j) = diff;
             sum += diff * diff;
         }
     }
@@ -47,6 +49,8 @@ int main(int argc, char** argv) {
     // check separation against tolerance
     if (separation > tolerance) {
         std::cerr << "Rasters differ" << std::endl;
+        std::cout << "Storing difference raster" << std::endl;
+        diffs.save("diffs.asc");
         return 1;
     }
     else {
