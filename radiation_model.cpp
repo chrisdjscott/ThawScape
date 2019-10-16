@@ -229,3 +229,8 @@ void RadiationModel::melt_exposed_ice(DEM& topo, Raster& Sed_Track, Raster& flow
         }
     }
 }
+
+void RadiationModel::save_rasters(std::string prefix) {
+    shade_raster.save(prefix + "_shade_raster.asc");
+    I_P.save(prefix + "_I_P.asc");
+}

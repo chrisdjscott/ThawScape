@@ -62,6 +62,10 @@ class RadiationModel {
         /// \brief Get the current solar altitude
         /// \returns altitude The current solar altitude
         real_type get_solar_altitude() { return r.get_altitude(); }
+
+        /// \brief Save some Rasters for debugging
+        /// \param prefix Prefix for the output file names
+        void save_rasters(std::string prefix);
 };
 
 #endif
